@@ -25,7 +25,7 @@ ApplicationWindow {
   menuBar: MenuBar {
     Menu {
       title: "&File"
-  
+
       Action {
         text: "&Open"
         onTriggered: openFileDialog.open()
@@ -46,12 +46,29 @@ ApplicationWindow {
     ColumnLayout {
       width: parent.width
 
-      Text {
-        text: name
-      }
+      RowLayout {
+        width: parent.width
 
-      Text {
-        text: progressFormatted
+        ColumnLayout {
+          Text {
+            text: name
+          }
+
+          Text {
+            text: progressFormatted
+          }
+        }
+
+        Rectangle {
+          Layout.fillWidth: true
+        }
+
+        Button {
+          text: controlBtnText
+          onClicked: {
+            torrentsListModel.on_control_btn_click(id)
+          }
+        }  
       }
 
       Controls1.ProgressBar {
