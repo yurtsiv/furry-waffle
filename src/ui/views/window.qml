@@ -52,6 +52,12 @@ ApplicationWindow {
         ColumnLayout {
           Text {
             text: name
+            font.bold: true
+            font.pixelSize: 16
+          }
+
+          Text {
+            text: statsFormatted
           }
 
           Text {
@@ -98,6 +104,7 @@ ApplicationWindow {
 
       MouseArea {
         anchors.fill: parent
+
         acceptedButtons: Qt.RightButton
         onClicked: {
             if (mouse.button === Qt.RightButton)
@@ -127,5 +134,6 @@ ApplicationWindow {
     clip: true
     model: torrentsListModel
     delegate: torrentItem
+    spacing: 10
   }
 }

@@ -18,6 +18,7 @@ class TorrentsListModel(QAbstractListModel):
     ProgressFormattedRole = Qt.UserRole + 4
     ControlBtnTextRole = Qt.UserRole + 5
     ControlBtnVisibleRole = Qt.UserRole + 6
+    StatsFormattedRole = Qt.UserRole + 7
 
     roles = {
         IdRole: 'id'.encode('utf-8'),
@@ -25,7 +26,8 @@ class TorrentsListModel(QAbstractListModel):
         ProgressPercentRole: 'progressPercent'.encode('utf-8'),
         ProgressFormattedRole: 'progressFormatted'.encode('utf-8'),
         ControlBtnTextRole: 'controlBtnText'.encode('utf-8'),
-        ControlBtnVisibleRole: 'controlBtnVisible'.encode('utf-8')
+        ControlBtnVisibleRole: 'controlBtnVisible'.encode('utf-8'),
+        StatsFormattedRole: 'statsFormatted'.encode('utf-8')
     }
 
     def __init__(self, torrent_client):
@@ -109,6 +111,28 @@ class TorrentsListModel(QAbstractListModel):
                 return False
 
             return status == 'downloading' or status == 'stopped'
+        
+        if role == self.StatsFormattedRole:
+            torrent = self.torrents[row]
+            
+            try:
+                if torrent.status == 'check pending' or torrent.status == 'checking':
+                    return 'Checking...'
+                
+                if torrent.status == 'stopped':
+                    return 'Paused'
+
+                if torrent.status == 'downloading':
+                    speed = self._format_size(torrent.rateDownload)
+                    peers_connected = torrent._fields['peersConnected'].value or 0
+                    peers_sending = torrent._fields['peersSendingToUs'].value or 0
+
+                    return 'Downloading from %d of %d peers. Speed: %s/s' % (peers_sending, peers_connected, speed)
+
+                return 'Seeding...'
+            except Exception as e:
+                print(e)
+                return ''
 
         return None
 
