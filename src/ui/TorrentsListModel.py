@@ -17,7 +17,7 @@ class TorrentsListModel(QAbstractListModel):
     ProgressPercentRole = Qt.UserRole + 3
     ProgressFormattedRole = Qt.UserRole + 4
     ControlBtnTextRole = Qt.UserRole + 5
-    StatusRole = Qt.UserRole + 6
+    ControlBtnVisibleRole = Qt.UserRole + 6
 
     roles = {
         IdRole: 'id'.encode('utf-8'),
@@ -25,7 +25,7 @@ class TorrentsListModel(QAbstractListModel):
         ProgressPercentRole: 'progressPercent'.encode('utf-8'),
         ProgressFormattedRole: 'progressFormatted'.encode('utf-8'),
         ControlBtnTextRole: 'controlBtnText'.encode('utf-8'),
-        StatusRole: 'status'.encode('utf-8')
+        ControlBtnVisibleRole: 'controlBtnVisible'.encode('utf-8')
     }
 
     def __init__(self, torrent_client):
@@ -85,16 +85,30 @@ class TorrentsListModel(QAbstractListModel):
             except:
                 return "0B / 0B (0%)"
 
-        if role == self.StatusRole:
-            return self.torrents[row].status
- 
         if role == self.ControlBtnTextRole:
             torrent = self.torrents[row]
+            
+            status = None
+            try:
+                status = torrent.status
+            except:
+                return "Pause"
 
-            if torrent.status == 'downloading':
+            if status == 'downloading':
                 return "Pause"
 
             return "Resume"
+        
+        if role == self.ControlBtnVisibleRole:
+            torrent = self.torrents[row]
+
+            status = None
+            try:
+                status = torrent.status
+            except:
+                return False
+
+            return status == 'downloading' or status == 'stopped'
 
         return None
 
@@ -129,3 +143,28 @@ class TorrentsListModel(QAbstractListModel):
                 self.dataChanged.emit(idx, idx)
         except:
             pass
+    
+    def _remove_torrent(self, torrent_id, delete_data = False):
+        try:
+            torrent_idx = list(map(lambda t: str(t.id), self.torrents)).index(torrent_id)
+            torrent = self.torrents[torrent_idx]
+
+            self.torrent_client.remove_torrent(
+                torrent.id,
+                delete_data
+            )
+
+            idx = self.createIndex(torrent_idx, 0)
+            self.beginRemoveRows(QModelIndex(), torrent_idx, torrent_idx)
+            del self.torrents[torrent_idx]
+            self.endRemoveRows()
+        except Exception as e:
+            pass
+
+    @pyqtSlot(str)
+    def on_remove(self, torrent_id):
+        self._remove_torrent(torrent_id)
+
+    @pyqtSlot(str)
+    def on_remove_with_data(self, torrent_id):
+        self._remove_torrent(torrent_id, True)

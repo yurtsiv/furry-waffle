@@ -65,6 +65,7 @@ ApplicationWindow {
 
         Button {
           text: controlBtnText
+          visible: controlBtnVisible
           onClicked: {
             torrentsListModel.on_control_btn_click(id)
           }
@@ -91,6 +92,29 @@ ApplicationWindow {
           progress: Rectangle {
               color: "lightsteelblue"
               border.color: "steelblue"
+          }
+        }
+      }
+
+      MouseArea {
+        anchors.fill: parent
+        acceptedButtons: Qt.RightButton
+        onClicked: {
+            if (mouse.button === Qt.RightButton)
+                contextMenu.popup()
+        }
+  
+        Menu {
+          id: contextMenu
+
+          Action {
+            text: "&Remove"
+            onTriggered: torrentsListModel.on_remove(id)
+          }
+
+          Action {
+            text: "&Remove and clean data"
+            onTriggered: torrentsListModel.on_remove_with_data(id)
           }
         }
       }
