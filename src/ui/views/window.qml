@@ -50,8 +50,12 @@ ApplicationWindow {
         text: name
       }
 
+      Text {
+        text: progressFormatted
+      }
+
       Controls1.ProgressBar {
-        value: progress
+        value: progressPercent
 
         maximumValue: 100
         implicitWidth: parent.width
