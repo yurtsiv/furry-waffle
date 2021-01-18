@@ -27,5 +27,7 @@ def run(torrent_client):
 
     if not engine.rootObjects():
         sys.exit(-1)
+    app.exec_()
 
-    sys.exit(app.exec_())
+    torrents_list_model.clean_up()
+    sys.exit(0)

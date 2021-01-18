@@ -40,7 +40,7 @@ class TorrentsListModel(QAbstractListModel):
             reverse=True
         )
 
-        set_interval(self._fetch_torrents, 2)
+        self.timer = set_interval(self._fetch_torrents, 2)
 
     def _fetch_torrents(self):
         new_torrents = sorted(
@@ -184,6 +184,9 @@ class TorrentsListModel(QAbstractListModel):
             self.endRemoveRows()
         except Exception as e:
             pass
+    
+    def clean_up(self):
+        self.timer.cancel()
 
     @pyqtSlot(str)
     def on_remove(self, torrent_id):
