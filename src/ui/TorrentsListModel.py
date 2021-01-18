@@ -4,12 +4,17 @@ from PyQt5.QtCore import QModelIndex, QAbstractListModel, Qt, pyqtSlot
 import threading
 
 def set_interval(func, sec):
+    stopped = threading.Event()
+
     def func_wrapper():
-        set_interval(func, sec)
-        func()
-    t = threading.Timer(sec, func_wrapper)
+        while not stopped.wait(sec):
+            func()
+
+    t = threading.Thread(target=func_wrapper)
+    t.daemon = True
     t.start()
-    return t
+
+    return stopped
 
 class TorrentsListModel(QAbstractListModel):
     IdRole = Qt.UserRole + 1
@@ -40,7 +45,7 @@ class TorrentsListModel(QAbstractListModel):
             reverse=True
         )
 
-        self.timer = set_interval(self._fetch_torrents, 2)
+        self.stop_interval = set_interval(self._fetch_torrents, 1)
 
     def _fetch_torrents(self):
         new_torrents = sorted(
@@ -129,7 +134,7 @@ class TorrentsListModel(QAbstractListModel):
 
                     return 'Downloading from %d of %d peers. Speed: %s/s' % (peers_sending, peers_connected, speed)
 
-                return 'Seeding...'
+                return 'Seeding'
             except Exception as e:
                 print(e)
                 return ''
@@ -186,7 +191,7 @@ class TorrentsListModel(QAbstractListModel):
             pass
     
     def clean_up(self):
-        self.timer.cancel()
+        self.stop_interval.set()
 
     @pyqtSlot(str)
     def on_remove(self, torrent_id):
