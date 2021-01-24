@@ -1,5 +1,6 @@
 from PyQt5 import QtCore
 from PyQt5.QtCore import QModelIndex, QAbstractListModel, Qt, pyqtSlot
+from ui.utils import confirm_action, show_error
 from utils.lists import find_by
 
 from utils.threading import set_interval
@@ -219,6 +220,15 @@ class TorrentsListModel(QAbstractListModel):
             torrent_idx = list(map(lambda t: str(t.id), self.torrents)).index(torrent_id)
             torrent = self.torrents[torrent_idx]
 
+            confirm_msg = 'Do you really want to remove "' + torrent.name + '"'
+            if delete_data:
+                confirm_msg += ' and all the data?'
+            else:
+                confirm_msg += ' from the list?'
+
+            if not confirm_action(confirm_msg, 'Remove torrent'):
+                return
+
             self.__logs.add_log(
                 torrent,
                 'Torrent removed'
@@ -233,7 +243,7 @@ class TorrentsListModel(QAbstractListModel):
             del self.torrents[torrent_idx]
             self.endRemoveRows()
         except Exception as e:
-            pass
+            show_error(str(e))
 
     def _fetch_torrents(self):
         all_sorted = sorted(

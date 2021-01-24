@@ -14,6 +14,35 @@ ApplicationWindow {
   height: 600
   minimumWidth: 800
   minimumHeight: 600
+  menuBar: MenuBar {
+    Menu {
+      title: "&File"
+
+      Action {
+        text: "&Open"
+        onTriggered: openFileDialog.open()
+      }
+
+      Action {
+        text: "&Exit"
+        onTriggered: {
+          Qt.quit()
+        }
+      }
+    }
+
+    Menu {
+      title: "&Edit"
+
+      Action {
+        text: "&Logs"
+        onTriggered: {
+          app_menu.on_logs_open()
+        }
+      }
+    }
+  }
+
 
   Lab.FileDialog {
     id: openFileDialog
@@ -185,35 +214,6 @@ ApplicationWindow {
             changeDownloadDirDialog.open()
           }
         }  
-      }
-    }
-  }
-
-  menuBar: MenuBar {
-    Menu {
-      title: "&File"
-
-      Action {
-        text: "&Open"
-        onTriggered: openFileDialog.open()
-      }
-
-      Action {
-        text: "&Exit"
-        onTriggered: {
-          Qt.quit()
-        }
-      }
-    }
-
-    Menu {
-      title: "&Edit"
-
-      Action {
-        text: "&Logs"
-        onTriggered: {
-          app_menu.on_logs_open()
-        }
       }
     }
   }
