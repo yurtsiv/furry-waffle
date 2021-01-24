@@ -1,26 +1,12 @@
 from PyQt5.QtCore import QObject, pyqtSlot
-from PyQt5.QtWidgets import QMessageBox
+from PyQt5.QtWidgets import QMessageBox, QDialog, QPushButton
 
 class AppMenu(QObject):
-    def __init__(self, torrentsListModel, torrentClient):
+    def __init__(self, on_file_selected):
         super().__init__()
 
-        self.torrentsListModel = torrentsListModel
-        self.torrentClient = torrentClient
-
-    def _showError(self, errMsg):
-        msg = QMessageBox()
-        msg.setText(errMsg)
-        msg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
-        msg.exec_()
+        self.on_file_selected = on_file_selected
 
     @pyqtSlot(str)
-    def onFileOpen(self, file_url):
-        try:
-            torrent = self.torrentClient.add_torrent(file_url)
-
-            self.torrentsListModel.addItem(torrent)
-        except FileNotFoundError:
-            self._showError('Torrent file not found. Please try again')
-        except Exception as err:
-            self._showError(str(err))
+    def on_file_open(self, file_url):
+        self.on_file_selected(file_url)

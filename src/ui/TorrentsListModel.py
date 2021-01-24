@@ -17,22 +17,22 @@ def set_interval(func, sec):
     return stopped
 
 class TorrentsListModel(QAbstractListModel):
-    IdRole = Qt.UserRole + 1
-    NameRole = Qt.UserRole + 2
-    ProgressPercentRole = Qt.UserRole + 3
-    ProgressFormattedRole = Qt.UserRole + 4
-    ControlBtnTextRole = Qt.UserRole + 5
-    ControlBtnVisibleRole = Qt.UserRole + 6
-    StatsFormattedRole = Qt.UserRole + 7
+    ID_ROLE = Qt.UserRole + 1
+    NAME_ROLE = Qt.UserRole + 2
+    PROGRESS_PERCENT_ROLE = Qt.UserRole + 3
+    PROGRESS_FORMATTED_ROLE = Qt.UserRole + 4
+    CONTROL_BTN_TEXT_ROLE = Qt.UserRole + 5
+    CONTROL_BTN_VISIBLE_ROLE = Qt.UserRole + 6
+    STATS_FORMATTED_ROLE = Qt.UserRole + 7
 
     roles = {
-        IdRole: 'id'.encode('utf-8'),
-        NameRole: 'name'.encode('utf-8'),
-        ProgressPercentRole: 'progressPercent'.encode('utf-8'),
-        ProgressFormattedRole: 'progressFormatted'.encode('utf-8'),
-        ControlBtnTextRole: 'controlBtnText'.encode('utf-8'),
-        ControlBtnVisibleRole: 'controlBtnVisible'.encode('utf-8'),
-        StatsFormattedRole: 'statsFormatted'.encode('utf-8')
+        ID_ROLE: 'id'.encode('utf-8'),
+        NAME_ROLE: 'name'.encode('utf-8'),
+        PROGRESS_PERCENT_ROLE: 'progress_percent'.encode('utf-8'),
+        PROGRESS_FORMATTED_ROLE: 'progress_formatted'.encode('utf-8'),
+        CONTROL_BTN_TEXT_ROLE: 'control_btn_text'.encode('utf-8'),
+        CONTROL_BTN_VISIBLE_ROLE: 'control_btn_visible'.encode('utf-8'),
+        STATS_FORMATTED_ROLE: 'stats_formatted'.encode('utf-8')
     }
 
     def __init__(self, torrent_client):
@@ -72,16 +72,16 @@ class TorrentsListModel(QAbstractListModel):
 
     def data(self, index, role=None):
         row = index.row()
-        if role == self.IdRole:
+        if role == self.ID_ROLE:
             return self.torrents[row].id
-        if role == self.NameRole:
+        if role == self.NAME_ROLE:
             return self.torrents[row].name
-        if role == self.ProgressPercentRole:
+        if role == self.PROGRESS_PERCENT_ROLE:
             try:
                 return self.torrents[row].progress
             except:
                 return 0
-        if role == self.ProgressFormattedRole:
+        if role == self.PROGRESS_FORMATTED_ROLE:
             try:
                 torrent = self.torrents[row]
                 fields = torrent._fields
@@ -92,7 +92,7 @@ class TorrentsListModel(QAbstractListModel):
             except:
                 return "0B / 0B (0%)"
 
-        if role == self.ControlBtnTextRole:
+        if role == self.CONTROL_BTN_TEXT_ROLE:
             torrent = self.torrents[row]
             
             status = None
@@ -106,7 +106,7 @@ class TorrentsListModel(QAbstractListModel):
 
             return "Resume"
         
-        if role == self.ControlBtnVisibleRole:
+        if role == self.CONTROL_BTN_VISIBLE_ROLE:
             torrent = self.torrents[row]
 
             status = None
@@ -117,7 +117,7 @@ class TorrentsListModel(QAbstractListModel):
 
             return status == 'downloading' or status == 'stopped'
         
-        if role == self.StatsFormattedRole:
+        if role == self.STATS_FORMATTED_ROLE:
             torrent = self.torrents[row]
             
             try:
@@ -147,7 +147,7 @@ class TorrentsListModel(QAbstractListModel):
     def roleNames(self):
         return self.roles
 
-    def addItem(self, torrent):
+    def add_item(self, torrent):
         if next((t for t in self.torrents if t.id == torrent.id), None):
             return
 

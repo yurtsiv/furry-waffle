@@ -4,6 +4,7 @@ import QtQuick.Controls 1.4 as Controls1
 import QtQuick.Controls.Styles 1.4
 import QtQuick.Layouts 1.15
 import Qt.labs.platform 1.1 as Lab
+import QtQuick.Dialogs 1.2
 
 ApplicationWindow {
   title: "Furry waffle"
@@ -15,10 +16,95 @@ ApplicationWindow {
 
   Lab.FileDialog {
     id: openFileDialog
+    title: "Torrent file"
     nameFilters: ["Torrent files (*.torrent)"]
 
     onAccepted: {
-      appMenu.onFileOpen(openFileDialog.file)
+      app_menu.on_file_open(openFileDialog.file)
+    }
+  }
+
+  Dialog {
+    width: 500
+    height: 200
+    objectName: "torrentDetailsDialog"
+    title: "Torrent details"
+    modality: Qt.NonModal
+    standardButtons: StandardButton.Open | StandardButton.Cancel
+
+    onAccepted: {
+      torrent_details_dialog.on_accept()
+    }
+
+    Lab.FileDialog {
+      id: changeFileDialog
+      title: "Torrent file"
+      nameFilters: ["Torrent files (*.torrent)"]
+
+      onAccepted: {
+        torrent_details_dialog.on_change_file(changeFileDialog.file)
+      }
+    }
+
+    FileDialog {
+      id: changeDownloadDirDialog
+      title: "Download directory"
+      selectFolder: true
+
+      onAccepted: {
+        torrent_details_dialog.on_change_download_dir(changeDownloadDirDialog.folder)
+      }
+    }
+
+    ColumnLayout {
+      width: parent.width
+      spacing: 10
+
+      Label {
+        text: "Torrent file"
+      }
+
+      RowLayout {
+        width: parent.width
+
+        TextField {
+          objectName: "torrentFilePath"
+          text: "hello"
+          readOnly: true
+          selectByMouse: true
+          Layout.fillWidth: true
+        }
+
+        Button {
+          text: "Change"
+          onClicked: {
+            changeFileDialog.open()
+          }
+        }  
+      }
+
+      Label {
+        text: "Download directory"
+      }
+
+      RowLayout {
+        width: parent.width
+
+        TextField {
+          objectName: "downloadDir"
+          text: "filepath"
+          readOnly: true
+          selectByMouse: true
+          Layout.fillWidth: true
+        }
+
+        Button {
+          text: "Change"
+          onClicked: {
+            changeDownloadDirDialog.open()
+          }
+        }  
+      }
     }
   }
 
@@ -57,11 +143,11 @@ ApplicationWindow {
           }
 
           Text {
-            text: statsFormatted
+            text: stats_formatted
           }
 
           Text {
-            text: progressFormatted
+            text: progress_formatted
           }
         }
 
@@ -70,16 +156,16 @@ ApplicationWindow {
         }
 
         Button {
-          text: controlBtnText
-          visible: controlBtnVisible
+          text: control_btn_text
+          visible: control_btn_visible
           onClicked: {
-            torrentsListModel.on_control_btn_click(id)
+            torrents_list_model.on_control_btn_click(id)
           }
         }  
       }
 
       Controls1.ProgressBar {
-        value: progressPercent
+        value: progress_percent
 
         maximumValue: 100
         implicitWidth: parent.width
@@ -116,12 +202,12 @@ ApplicationWindow {
 
           Action {
             text: "&Remove"
-            onTriggered: torrentsListModel.on_remove(id)
+            onTriggered: torrents_list_model.on_remove(id)
           }
 
           Action {
             text: "&Remove and clean data"
-            onTriggered: torrentsListModel.on_remove_with_data(id)
+            onTriggered: torrents_list_model.on_remove_with_data(id)
           }
         }
       }
@@ -132,7 +218,7 @@ ApplicationWindow {
     id: listView
     anchors.fill: parent
     clip: true
-    model: torrentsListModel
+    model: torrents_list_model
     delegate: torrentItem
     spacing: 10
   }
