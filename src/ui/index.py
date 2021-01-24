@@ -6,10 +6,6 @@ from PyQt5.QtWidgets import QApplication
 from PyQt5.QtQml import QQmlApplicationEngine
 
 from ui.ContextManager import ContextManager
-from ui.AppMenu import AppMenu
-from ui.TorrentDetailsDialog import TorrentDetailsDialog
-from ui.TorrentsListModel import TorrentsListModel
-
 
 def run(torrent_client):
     app = QApplication(sys.argv)

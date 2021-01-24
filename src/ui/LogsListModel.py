@@ -1,6 +1,5 @@
-from PyQt5 import QtCore
 from PyQt5.QtCore import QModelIndex, QAbstractListModel, Qt, pyqtSlot
-
+from ui.utils import confirm_action
 
 class LogsListModel(QAbstractListModel):
     TORRENT_NAME_ROLE = Qt.UserRole + 1
@@ -35,7 +34,7 @@ class LogsListModel(QAbstractListModel):
             return log.text
  
         if role == self.CREATED_AT:
-            return log.created_at.strftime('%d/%m/%Y %H:%M:%S')
+            return log.formatted_created_at
 
         return None
 
@@ -44,3 +43,15 @@ class LogsListModel(QAbstractListModel):
 
     def roleNames(self):
         return self.ROLES
+    
+    @pyqtSlot(str)
+    def on_search_change(self, search_text):
+        self.beginResetModel()
+        self.__logs = self.__logs_obj.get_by_search(search_text)
+        self.endResetModel()
+
+    @pyqtSlot()
+    def on_clear_all(self):
+        if confirm_action('Do you really want to delete all logs?', 'Clear logs'):
+            self.__logs_obj.clear_all()
+            self.refresh()

@@ -1,5 +1,6 @@
 from PyQt5 import QtCore
 from PyQt5.QtCore import QModelIndex, QAbstractListModel, Qt, pyqtSlot
+from utils.lists import find_by
 
 from utils.threading import set_interval
 from utils.formatters import format_file_size
@@ -167,7 +168,6 @@ class TorrentsListModel(QAbstractListModel):
     def clean_up(self):
         self.__stop_interval.set()
 
-
     @pyqtSlot()
     def on_refetch(self):
         new_torrents = self._fetch_torrents()
@@ -175,8 +175,8 @@ class TorrentsListModel(QAbstractListModel):
         curr_torrents_len = len(self.torrents)
 
         if new_torrents_len == curr_torrents_len:
+            self._log_done_torrents(self.torrents, new_torrents)
             self.torrents = new_torrents
-            self._log_done_torrents()
 
             begin = self.createIndex(0, 0)
             end = self.createIndex(new_torrents_len, 0)
@@ -244,14 +244,13 @@ class TorrentsListModel(QAbstractListModel):
 
         if self.__filter_status is None:
             return all_sorted
-        
+
         return [t for t in all_sorted if t.status == self.__filter_status]
-    
-    def _log_done_torrents(self):
+
+    def _log_done_torrents(self, prev_torrents, new_torrents):
         try:
-            for torrent in self.torrents:
-                if torrent.progress == 100:
+            for torrent in new_torrents:
+                if torrent.progress == 100 and find_by(lambda t: t.name == torrent.name, prev_torrents).progress != 100:
                     self.__logs.add_log(torrent, 'Download finished')
         except:
             pass
-

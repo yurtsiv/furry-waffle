@@ -40,8 +40,15 @@ class Logs:
                 )
             )
 
+    def get_by_search(self, search_text):
+        return [l for l in self.all_logs if l.matches_search(search_text)]
+
     def add_log(self, torrent, text):
         self.__pending_logs.add(Log(torrent.name, text))
+    
+    def clear_all(self):
+        self.__pending_logs = set()
+        self.__existing_logs = set()
 
     def save_logs(self):
         self._ensure_file()

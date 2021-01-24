@@ -26,6 +26,7 @@ ApplicationWindow {
   }
 
   Dialog {
+    id: logsDialog
     width: 600
     height: 600
 
@@ -33,12 +34,12 @@ ApplicationWindow {
     title: "Logs"
     modality: Qt.NonModal
     standardButtons: StandardButton.Close
-
     Component {
       id: logItem
 
       ColumnLayout {
         width: parent.width
+        clip: true
 
         Rectangle {
           height: 1
@@ -64,12 +65,43 @@ ApplicationWindow {
       }
     }
 
-    ListView {
+    ColumnLayout {
       anchors.fill: parent
       clip: true
-      model: logs_list_model
-      delegate: logItem
-      spacing: 10
+
+
+      RowLayout {
+        TextField {
+          id: logSearchField
+          selectByMouse: true
+          placeholderText: 'Search...'
+
+          onTextChanged: {
+            logs_list_model.on_search_change(logSearchField.text)
+          }
+        }
+
+        Rectangle {
+          Layout.fillWidth: true
+        }
+
+        Button {
+          text: "Clear all"
+          onClicked: {
+            logs_list_model.on_clear_all()
+          }
+        }
+      }
+
+      ListView {
+        Layout.fillWidth: true
+        Layout.fillHeight: true
+
+        clip: true
+        model: logs_list_model
+        delegate: logItem
+        spacing: 10
+      }
     }
   }
 
