@@ -24,7 +24,6 @@ class ContextManager():
         msg.exec_()
 
     def on_details_accepted(self, file_url, download_dir):
-        print('Download dir ' + download_dir)
         try:
             torrent = self.torrent_client.add_torrent(file_url, download_dir=download_dir)
             self.torrents_list_model.add_item(torrent)

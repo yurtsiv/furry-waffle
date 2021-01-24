@@ -144,6 +144,7 @@ ApplicationWindow {
 
           Text {
             text: stats_formatted
+            color: stats_color
           }
 
           Text {
@@ -182,8 +183,7 @@ ApplicationWindow {
           }
 
           progress: Rectangle {
-              color: "lightsteelblue"
-              border.color: "steelblue"
+            color: progress_bar_color
           }
         }
       }

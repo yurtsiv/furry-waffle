@@ -24,6 +24,8 @@ class TorrentsListModel(QAbstractListModel):
     CONTROL_BTN_TEXT_ROLE = Qt.UserRole + 5
     CONTROL_BTN_VISIBLE_ROLE = Qt.UserRole + 6
     STATS_FORMATTED_ROLE = Qt.UserRole + 7
+    PROGRESS_BAR_COLOR_ROLE = Qt.UserRole + 8
+    STATS_COLOR_ROLE = Qt.UserRole + 9
 
     roles = {
         ID_ROLE: 'id'.encode('utf-8'),
@@ -32,7 +34,9 @@ class TorrentsListModel(QAbstractListModel):
         PROGRESS_FORMATTED_ROLE: 'progress_formatted'.encode('utf-8'),
         CONTROL_BTN_TEXT_ROLE: 'control_btn_text'.encode('utf-8'),
         CONTROL_BTN_VISIBLE_ROLE: 'control_btn_visible'.encode('utf-8'),
-        STATS_FORMATTED_ROLE: 'stats_formatted'.encode('utf-8')
+        STATS_FORMATTED_ROLE: 'stats_formatted'.encode('utf-8'),
+        PROGRESS_BAR_COLOR_ROLE: 'progress_bar_color'.encode('utf-8'),
+        STATS_COLOR_ROLE: 'stats_color'.encode('utf-8')
     }
 
     def __init__(self, torrent_client):
@@ -72,18 +76,19 @@ class TorrentsListModel(QAbstractListModel):
 
     def data(self, index, role=None):
         row = index.row()
+        torrent = self.torrents[row]
+
         if role == self.ID_ROLE:
-            return self.torrents[row].id
+            return torrent.id
         if role == self.NAME_ROLE:
-            return self.torrents[row].name
+            return torrent.name
         if role == self.PROGRESS_PERCENT_ROLE:
             try:
-                return self.torrents[row].progress
+                return torrent.progress
             except:
                 return 0
         if role == self.PROGRESS_FORMATTED_ROLE:
             try:
-                torrent = self.torrents[row]
                 fields = torrent._fields
                 totalSize = fields['sizeWhenDone'].value
                 totalSizeFmt = self._format_size(totalSize)
@@ -93,8 +98,6 @@ class TorrentsListModel(QAbstractListModel):
                 return "0B / 0B (0%)"
 
         if role == self.CONTROL_BTN_TEXT_ROLE:
-            torrent = self.torrents[row]
-            
             status = None
             try:
                 status = torrent.status
@@ -105,25 +108,36 @@ class TorrentsListModel(QAbstractListModel):
                 return "Pause"
 
             return "Resume"
-        
-        if role == self.CONTROL_BTN_VISIBLE_ROLE:
-            torrent = self.torrents[row]
 
+        if role == self.CONTROL_BTN_VISIBLE_ROLE:
             status = None
             try:
                 status = torrent.status
             except:
                 return False
+            
+            error_string = torrent._fields['errorString'].value
+            if error_string:
+                return False
 
             return status == 'downloading' or status == 'stopped'
-        
+
         if role == self.STATS_FORMATTED_ROLE:
-            torrent = self.torrents[row]
-            
+            status = None
             try:
+                status = torrent.status
+            except:
+                return 'Preparing...'
+
+            error_string = torrent._fields['errorString'].value
+
+            try:
+                if error_string:
+                    return 'Error: ' + error_string
+
                 if torrent.status == 'check pending' or torrent.status == 'checking':
                     return 'Checking...'
-                
+ 
                 if torrent.status == 'stopped':
                     return 'Paused'
 
@@ -138,6 +152,32 @@ class TorrentsListModel(QAbstractListModel):
             except Exception as e:
                 print(e)
                 return ''
+
+        if role == self.PROGRESS_BAR_COLOR_ROLE:
+            status = None
+            try:
+                status = torrent.status
+            except:
+                return '#4caf50'
+
+            if status == 'downloading' or status == 'seeding':
+                return '#4caf50'
+
+            return '#bfbfbf'
+
+        if role == self.STATS_COLOR_ROLE:
+            status = None
+            try:
+                status = torrent.status
+            except:
+                return 'black'
+
+            error_string = torrent._fields['errorString'].value
+
+            if error_string:
+                return '#bd0000'
+
+            return 'black'
 
         return None
 

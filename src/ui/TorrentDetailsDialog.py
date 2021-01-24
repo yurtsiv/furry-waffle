@@ -34,7 +34,7 @@ class TorrentDetailsDialog(QObject):
         )
 
         dialog.open()
-    
+
     @pyqtSlot(str)
     def on_change_file(self, torrent_file_url):
         self.file_url = torrent_file_url

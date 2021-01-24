@@ -1,5 +1,4 @@
 from PyQt5.QtCore import QObject, pyqtSlot
-from PyQt5.QtWidgets import QMessageBox, QDialog, QPushButton
 
 class AppMenu(QObject):
     def __init__(self, on_file_selected):
