@@ -7,6 +7,7 @@ import Qt.labs.platform 1.1 as Lab
 import QtQuick.Dialogs 1.2
 
 ApplicationWindow {
+  id: appWindow
   title: "Furry waffle"
   visible: true
   width: 800
@@ -132,8 +133,14 @@ ApplicationWindow {
     ColumnLayout {
       width: parent.width
 
+      Rectangle {
+        height: 1
+        Layout.fillWidth: true
+        color: "#ededed"
+      }
+
       RowLayout {
-        width: parent.width
+        Layout.fillWidth: true
 
         ColumnLayout {
           Text {
@@ -214,12 +221,34 @@ ApplicationWindow {
     }
   }
 
-  ListView {
-    id: listView
+  ColumnLayout {
     anchors.fill: parent
     clip: true
-    model: torrents_list_model
-    delegate: torrentItem
-    spacing: 10
+
+    Rectangle {
+      height: 2
+    }
+
+    ComboBox {
+      width: 200
+      model: ["Filter...", "Downloading", "Seeding", "Stopped"]
+      onActivated: {
+        torrents_list_model.on_filter(currentIndex)
+      }
+    }
+
+    Rectangle {
+      height: 2
+    }
+
+    ListView {
+      id: listView
+      Layout.fillWidth: true
+      Layout.fillHeight: true
+      clip: true
+      model: torrents_list_model
+      delegate: torrentItem
+      spacing: 10
+    }
   }
 }

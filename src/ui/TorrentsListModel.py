@@ -27,7 +27,7 @@ class TorrentsListModel(QAbstractListModel):
     PROGRESS_BAR_COLOR_ROLE = Qt.UserRole + 8
     STATS_COLOR_ROLE = Qt.UserRole + 9
 
-    roles = {
+    ROLES = {
         ID_ROLE: 'id'.encode('utf-8'),
         NAME_ROLE: 'name'.encode('utf-8'),
         PROGRESS_PERCENT_ROLE: 'progress_percent'.encode('utf-8'),
@@ -39,32 +39,31 @@ class TorrentsListModel(QAbstractListModel):
         STATS_COLOR_ROLE: 'stats_color'.encode('utf-8')
     }
 
+    RESET_SIGNAL = QtCore.pyqtSignal()
+
+    FILTER_STATUSES = [None, 'downloading', 'seeding', 'stopped']
+
     def __init__(self, torrent_client):
         QAbstractListModel.__init__(self)
 
         self.torrent_client = torrent_client
-        self.torrents = sorted(
-            torrent_client.get_torrents(),
-            key=lambda t: t.date_added,
-            reverse=True
-        )
+        self.filter_status = None
+        self.torrents = self._fetch_torrents()
 
-        self.stop_interval = set_interval(self._fetch_torrents, 1)
+        self.RESET_SIGNAL.connect(self.on_refetch)
+        self.stop_interval = set_interval(lambda: self.RESET_SIGNAL.emit(), 1)
 
     def _fetch_torrents(self):
-        new_torrents = sorted(
+        all_sorted = sorted(
             self.torrent_client.get_torrents(),
             key=lambda t: t.date_added,
             reverse=True
         )
-        new_torrents_len = len(new_torrents)
-        curr_torrents_len = len(self.torrents)
 
-        if new_torrents_len == curr_torrents_len:
-            self.torrents = new_torrents
-            begin = self.createIndex(0, 0)
-            end = self.createIndex(new_torrents_len, 0)
-            self.dataChanged.emit(begin, end)
+        if self.filter_status is None:
+            return all_sorted
+        
+        return [t for t in all_sorted if t.status == self.filter_status]
 
     def _format_size(self, bytes, suffix='B'):
         for unit in ['','k','M','G','T','P','E','Z']:
@@ -185,7 +184,7 @@ class TorrentsListModel(QAbstractListModel):
         return len(self.torrents)
 
     def roleNames(self):
-        return self.roles
+        return self.ROLES
 
     def add_item(self, torrent):
         if next((t for t in self.torrents if t.id == torrent.id), None):
@@ -195,6 +194,19 @@ class TorrentsListModel(QAbstractListModel):
         self.beginInsertRows(QtCore.QModelIndex(), row, row)
         self.torrents.insert(0, torrent)
         self.endInsertRows()
+    
+    @QtCore.pyqtSlot()
+    def on_refetch(self):
+        self.beginResetModel()
+        self.torrents = self._fetch_torrents()
+        self.endResetModel()
+
+    @pyqtSlot(int)
+    def on_filter(self, filter_idx):
+        self.filter_status = self.FILTER_STATUSES[filter_idx]
+        self.beginResetModel()
+        self.torrents = self._fetch_torrents()
+        self.endResetModel()
 
     @pyqtSlot(str)
     def on_control_btn_click(self, torrent_id):
