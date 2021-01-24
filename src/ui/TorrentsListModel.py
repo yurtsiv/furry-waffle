@@ -1,20 +1,8 @@
-from operator import index
 from PyQt5 import QtCore
 from PyQt5.QtCore import QModelIndex, QAbstractListModel, Qt, pyqtSlot
-import threading
 
-def set_interval(func, sec):
-    stopped = threading.Event()
-
-    def func_wrapper():
-        while not stopped.wait(sec):
-            func()
-
-    t = threading.Thread(target=func_wrapper)
-    t.daemon = True
-    t.start()
-
-    return stopped
+from utils.threading import set_interval
+from utils.formatters import format_file_size
 
 class TorrentsListModel(QAbstractListModel):
     ID_ROLE = Qt.UserRole + 1
@@ -39,39 +27,20 @@ class TorrentsListModel(QAbstractListModel):
         STATS_COLOR_ROLE: 'stats_color'.encode('utf-8')
     }
 
-    RESET_SIGNAL = QtCore.pyqtSignal()
+    REFETCH_SIGNAL = QtCore.pyqtSignal()
 
     FILTER_STATUSES = [None, 'downloading', 'seeding', 'stopped']
 
-    def __init__(self, torrent_client):
+    def __init__(self, torrent_client, logs):
         QAbstractListModel.__init__(self)
 
-        self.torrent_client = torrent_client
-        self.filter_status = None
+        self.__logs = logs
+        self.__torrent_client = torrent_client
+        self.__filter_status = None
         self.torrents = self._fetch_torrents()
 
-        self.RESET_SIGNAL.connect(self.on_refetch)
-        self.stop_interval = set_interval(lambda: self.RESET_SIGNAL.emit(), 1)
-
-    def _fetch_torrents(self):
-        all_sorted = sorted(
-            self.torrent_client.get_torrents(),
-            key=lambda t: t.date_added,
-            reverse=True
-        )
-
-        if self.filter_status is None:
-            return all_sorted
-        
-        return [t for t in all_sorted if t.status == self.filter_status]
-
-    def _format_size(self, bytes, suffix='B'):
-        for unit in ['','k','M','G','T','P','E','Z']:
-            if abs(bytes) < 1000.0:
-                return "%3.2f%s%s" % (bytes, unit, suffix)
-            bytes /= 1000.0
-
-        return "%.1f%s%s" % (bytes, 'Y', suffix)
+        self.REFETCH_SIGNAL.connect(self.on_refetch)
+        self.__stop_interval = set_interval(lambda: self.REFETCH_SIGNAL.emit(), 1)
 
     def data(self, index, role=None):
         row = index.row()
@@ -90,8 +59,8 @@ class TorrentsListModel(QAbstractListModel):
             try:
                 fields = torrent._fields
                 totalSize = fields['sizeWhenDone'].value
-                totalSizeFmt = self._format_size(totalSize)
-                downloadedSizeFmt = self._format_size(totalSize - fields['leftUntilDone'].value)
+                totalSizeFmt = format_file_size(totalSize)
+                downloadedSizeFmt = format_file_size(totalSize - fields['leftUntilDone'].value)
                 return "%s / %s (%2.2f%%)" % (downloadedSizeFmt, totalSizeFmt, torrent.progress)
             except:
                 return "0B / 0B (0%)"
@@ -141,7 +110,7 @@ class TorrentsListModel(QAbstractListModel):
                     return 'Paused'
 
                 if torrent.status == 'downloading':
-                    speed = self._format_size(torrent.rateDownload)
+                    speed = format_file_size(torrent.rateDownload)
                     peers_connected = torrent._fields['peersConnected'].value or 0
                     peers_sending = torrent._fields['peersSendingToUs'].value or 0
 
@@ -194,16 +163,28 @@ class TorrentsListModel(QAbstractListModel):
         self.beginInsertRows(QtCore.QModelIndex(), row, row)
         self.torrents.insert(0, torrent)
         self.endInsertRows()
-    
-    @QtCore.pyqtSlot()
+
+    def clean_up(self):
+        self.__stop_interval.set()
+
+
+    @pyqtSlot()
     def on_refetch(self):
-        self.beginResetModel()
-        self.torrents = self._fetch_torrents()
-        self.endResetModel()
+        new_torrents = self._fetch_torrents()
+        new_torrents_len = len(new_torrents)
+        curr_torrents_len = len(self.torrents)
+
+        if new_torrents_len == curr_torrents_len:
+            self.torrents = new_torrents
+            self._log_done_torrents()
+
+            begin = self.createIndex(0, 0)
+            end = self.createIndex(new_torrents_len, 0)
+            self.dataChanged.emit(begin, end)
 
     @pyqtSlot(int)
     def on_filter(self, filter_idx):
-        self.filter_status = self.FILTER_STATUSES[filter_idx]
+        self.__filter_status = self.FILTER_STATUSES[filter_idx]
         self.beginResetModel()
         self.torrents = self._fetch_torrents()
         self.endResetModel()
@@ -224,26 +205,6 @@ class TorrentsListModel(QAbstractListModel):
                 self.dataChanged.emit(idx, idx)
         except:
             pass
-    
-    def _remove_torrent(self, torrent_id, delete_data = False):
-        try:
-            torrent_idx = list(map(lambda t: str(t.id), self.torrents)).index(torrent_id)
-            torrent = self.torrents[torrent_idx]
-
-            self.torrent_client.remove_torrent(
-                torrent.id,
-                delete_data
-            )
-
-            idx = self.createIndex(torrent_idx, 0)
-            self.beginRemoveRows(QModelIndex(), torrent_idx, torrent_idx)
-            del self.torrents[torrent_idx]
-            self.endRemoveRows()
-        except Exception as e:
-            pass
-    
-    def clean_up(self):
-        self.stop_interval.set()
 
     @pyqtSlot(str)
     def on_remove(self, torrent_id):
@@ -252,3 +213,45 @@ class TorrentsListModel(QAbstractListModel):
     @pyqtSlot(str)
     def on_remove_with_data(self, torrent_id):
         self._remove_torrent(torrent_id, True)
+
+    def _remove_torrent(self, torrent_id, delete_data = False):
+        try:
+            torrent_idx = list(map(lambda t: str(t.id), self.torrents)).index(torrent_id)
+            torrent = self.torrents[torrent_idx]
+
+            self.__logs.add_log(
+                torrent,
+                'Torrent removed'
+            )
+
+            self.__torrent_client.remove_torrent(
+                torrent.id,
+                delete_data
+            )
+
+            self.beginRemoveRows(QModelIndex(), torrent_idx, torrent_idx)
+            del self.torrents[torrent_idx]
+            self.endRemoveRows()
+        except Exception as e:
+            pass
+
+    def _fetch_torrents(self):
+        all_sorted = sorted(
+            self.__torrent_client.get_torrents(),
+            key=lambda t: t.date_added,
+            reverse=True
+        )
+
+        if self.__filter_status is None:
+            return all_sorted
+        
+        return [t for t in all_sorted if t.status == self.__filter_status]
+    
+    def _log_done_torrents(self):
+        try:
+            for torrent in self.torrents:
+                if torrent.progress == 100:
+                    self.__logs.add_log(torrent, 'Download finished')
+        except:
+            pass
+

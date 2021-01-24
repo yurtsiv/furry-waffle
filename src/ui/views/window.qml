@@ -26,8 +26,56 @@ ApplicationWindow {
   }
 
   Dialog {
+    width: 600
+    height: 600
+
+    objectName: "logsDialog"
+    title: "Logs"
+    modality: Qt.NonModal
+    standardButtons: StandardButton.Close
+
+    Component {
+      id: logItem
+
+      ColumnLayout {
+        width: parent.width
+
+        Rectangle {
+          height: 1
+          Layout.fillWidth: true
+          color: "#ededed"
+        }
+
+        ColumnLayout {
+          Text {
+            text: log_text
+            font.bold: true
+            font.pixelSize: 16
+          }
+
+          Text {
+            text: torrent_name
+          }
+
+          Text {
+            text: created_at
+          }
+        }
+      }
+    }
+
+    ListView {
+      anchors.fill: parent
+      clip: true
+      model: logs_list_model
+      delegate: logItem
+      spacing: 10
+    }
+  }
+
+  Dialog {
     width: 500
-    height: 200
+    height: 220
     objectName: "torrentDetailsDialog"
     title: "Torrent details"
     modality: Qt.NonModal
@@ -119,9 +167,20 @@ ApplicationWindow {
       }
 
       Action {
-        text: "&Quit"
+        text: "&Exit"
         onTriggered: {
           Qt.quit()
+        }
+      }
+    }
+
+    Menu {
+      title: "&Edit"
+
+      Action {
+        text: "&Logs"
+        onTriggered: {
+          app_menu.on_logs_open()
         }
       }
     }
@@ -231,7 +290,7 @@ ApplicationWindow {
 
     ComboBox {
       width: 200
-      model: ["Filter...", "Downloading", "Seeding", "Stopped"]
+      model: ["Filter...", "Downloading", "Seeding", "Paused"]
       onActivated: {
         torrents_list_model.on_filter(currentIndex)
       }
@@ -242,7 +301,6 @@ ApplicationWindow {
     }
 
     ListView {
-      id: listView
       Layout.fillWidth: true
       Layout.fillHeight: true
       clip: true

@@ -23,6 +23,7 @@ def run(torrent_client):
     context.setContextProperty("app_menu", ctx_manager.app_menu)
     context.setContextProperty("torrents_list_model", ctx_manager.torrents_list_model)
     context.setContextProperty("torrent_details_dialog", ctx_manager.torrent_details_dialog)
+    context.setContextProperty("logs_list_model", ctx_manager.logs_list_model)
 
     qml_file = os.path.join(os.path.dirname(__file__), "views/window.qml")
     engine.load(QUrl.fromLocalFile(os.path.abspath(qml_file)))
