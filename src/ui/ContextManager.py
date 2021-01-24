@@ -23,10 +23,11 @@ class ContextManager():
         self.__torrent_details_dialog.open(file_url)
 
     def on_logs_open(self):
-        if self.__logs.working:
+        try:
+            _ = self.__logs.all_logs
             self.__logs_list_model.refresh()
             self.__logs_dialog.open()
-        else:
+        except:
             show_error('Failed to open logs')
 
     def on_details_accepted(self, file_url, download_dir):

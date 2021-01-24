@@ -74,7 +74,7 @@ class TorrentsListModel(QAbstractListModel):
             except:
                 return "Pause"
 
-            if status == 'downloading':
+            if status == 'downloading' or status == 'seeding':
                 return "Pause"
 
             return "Resume"
@@ -90,7 +90,7 @@ class TorrentsListModel(QAbstractListModel):
             if error_string:
                 return False
 
-            return status == 'downloading' or status == 'stopped'
+            return status == 'downloading' or status == 'stopped' or status == 'seeding'
 
         if role == self.STATS_FORMATTED_ROLE:
             status = None
@@ -197,11 +197,12 @@ class TorrentsListModel(QAbstractListModel):
 
             torrent = self.torrents[torrent_idx]
             idx = self.createIndex(torrent_idx, 0)
+            status = torrent.status
 
-            if torrent.status == 'downloading':
+            if status == 'downloading' or status == 'seeding':
                 torrent.stop()
                 self.dataChanged.emit(idx, idx)
-            elif torrent.status == 'stopped':
+            elif status == 'stopped':
                 torrent.start()
                 self.dataChanged.emit(idx, idx)
         except:
