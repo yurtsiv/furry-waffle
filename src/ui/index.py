@@ -8,6 +8,9 @@ from PyQt5.QtQml import QQmlApplicationEngine
 from ui.ContextManager import ContextManager
 
 def run(torrent_client):
+    """
+    Start the UI
+    """
     app = QApplication(sys.argv)
 
     engine = QQmlApplicationEngine()

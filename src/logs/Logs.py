@@ -5,6 +5,9 @@ from operator import attrgetter
 from utils.lists import list_map
 from logs.Log import Log
 
+"""
+A central place for reading/adding/removing logs.
+"""
 class Logs:
     FILE_PATH = '.logs.json'
 
@@ -19,6 +22,9 @@ class Logs:
 
     @property
     def all_logs(self):
+        """
+        Get all logs (saved and not saved)
+        """
         self._ensure_file()
 
         with open(self.FILE_PATH, 'r') as f:
@@ -37,16 +43,28 @@ class Logs:
             )
 
     def get_by_search(self, search_text):
+        """
+        Filtere logs by search criteria
+        """
         return [l for l in self.all_logs if l.matches_search(search_text)]
 
     def add_log(self, torrent, text):
+        """
+        Add a new pending log (not persisted, call `save_logs` to save all pending logs)
+        """
         self.__pending_logs.add(Log(torrent.name, text))
     
     def clear_all(self):
+        """
+        Clear all logs (not persisted, call `save_logs` to apply the change)
+        """
         self.__pending_logs = set()
         self.__existing_logs = set()
 
     def save_logs(self):
+        """
+        Persist pending logs
+        """
         self._ensure_file()
 
         all_logs = self.all_logs
@@ -61,13 +79,10 @@ class Logs:
             self.__pending_logs = set()
             self.__existing_logs = set(all_logs)
 
-    def log_torrent_added(self, torrent):
-        self.add_log(
-            torrent,
-            'Torrent added'
-        )
-
     def _ensure_file(self):
+        """
+        Make sure logs file exists
+        """
         if not os.path.exists(self.FILE_PATH):
             with open(self.FILE_PATH, 'w') as f:
                 json.dump([], f)

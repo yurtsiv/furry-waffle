@@ -1,6 +1,10 @@
 from PyQt5.QtWidgets import QMessageBox
 
+
 def show_error(text, title='Error'):
+    """
+    Show error in a message box
+    """
     msg = QMessageBox()
     msg.setWindowTitle(title)
     msg.setText(text)
@@ -9,6 +13,9 @@ def show_error(text, title='Error'):
     msg.exec_()
 
 def confirm_action(text, title='Confirm'):
+    """
+    Show Yes/No prompt and return according boolean
+    """
     msg = QMessageBox()
     msg.setWindowTitle(title)
     msg.setText(text)

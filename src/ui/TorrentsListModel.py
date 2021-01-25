@@ -6,6 +6,12 @@ from utils.lists import find_by
 from utils.threading import set_interval
 from utils.formatters import format_file_size
 
+"""
+A controller for torrents list, which fetches
+the list of torrents periodically and updates the UI
+on each iteration. It's also repsonsible for handling
+user interactions like pausing, resuming and removing individual torrents.
+"""
 class TorrentsListModel(QAbstractListModel):
     ID_ROLE = Qt.UserRole + 1
     NAME_ROLE = Qt.UserRole + 2
@@ -29,7 +35,7 @@ class TorrentsListModel(QAbstractListModel):
         STATS_COLOR_ROLE: 'stats_color'.encode('utf-8')
     }
 
-    REFETCH_SIGNAL = QtCore.pyqtSignal()
+    REFETCH_SIGNAL = QtCore.pyQtSlot()
 
     FILTER_STATUSES = [None, 'downloading', 'seeding', 'stopped']
 
@@ -47,6 +53,9 @@ class TorrentsListModel(QAbstractListModel):
         self.__stop_interval = set_interval(lambda: self.REFETCH_SIGNAL.emit(), 1)
 
     def data(self, index, role=None):
+        """
+        Provide data for the UI
+        """
         row = index.row()
         torrent = self.__torrents[row]
 
@@ -154,12 +163,21 @@ class TorrentsListModel(QAbstractListModel):
         return None
 
     def rowCount(self, parent=QModelIndex()):
+        """
+        Get number of torrents in the list
+        """
         return len(self.__torrents)
 
     def roleNames(self):
+        """
+        Get variables which can be used in QML
+        """
         return self.ROLES
 
     def add_item(self, torrent):
+        """
+        Insert a new torrent at the start of the list
+        """
         if next((t for t in self.__torrents if t.id == torrent.id), None):
             return
 
@@ -169,10 +187,17 @@ class TorrentsListModel(QAbstractListModel):
         self.endInsertRows()
 
     def clean_up(self):
+        """
+        Clear all resources/timers
+        """
         self.__stop_interval.set()
 
     @pyqtSlot()
     def on_refetch(self):
+        """
+        QtSlot.
+        Refresh the whole list
+        """
         new_torrents = self._fetch_torrents()
         new_torrents_len = len(new_torrents)
         curr_torrents_len = len(self.__torrents)
@@ -187,6 +212,10 @@ class TorrentsListModel(QAbstractListModel):
 
     @pyqtSlot(int)
     def on_filter(self, filter_idx):
+        """
+        QtSlog.
+        Apply filters
+        """
         self.__filter_status = self.FILTER_STATUSES[filter_idx]
         self.beginResetModel()
         self.__torrents = self._fetch_torrents()
@@ -194,6 +223,10 @@ class TorrentsListModel(QAbstractListModel):
 
     @pyqtSlot(str)
     def on_control_btn_click(self, torrent_id):
+        """
+        QtSlot.
+        Pause/resume a particular torrent
+        """
         try:
             torrent_idx = list(map(lambda t: str(t.id), self.__torrents)).index(torrent_id)
 
@@ -212,17 +245,32 @@ class TorrentsListModel(QAbstractListModel):
 
     @pyqtSlot(str)
     def on_remove(self, torrent_id):
+        """
+        QtSlot.
+        Remove torrent from the list
+        """
         self._remove_torrent(torrent_id)
 
     @pyqtSlot(str)
     def on_remove_with_data(self, torrent_id):
+        """
+        QtSlot.
+        Remove torrent and all its data
+        """
         self._remove_torrent(torrent_id, True)
 
     @pyqtSlot(str)
     def on_peer_limit(self, torrent_id):
+        """
+        QtSlot.
+        Open peer limit dialog
+        """
         self.__on_peer_limit(int(torrent_id))
 
     def _remove_torrent(self, torrent_id, delete_data = False):
+        """
+        Helper method which actually does the job of removing a torrent
+        """
         try:
             torrent_idx = list(map(lambda t: str(t.id), self.__torrents)).index(torrent_id)
             torrent = self.__torrents[torrent_idx]
@@ -253,6 +301,9 @@ class TorrentsListModel(QAbstractListModel):
             show_error(str(e))
 
     def _fetch_torrents(self):
+        """
+        Get torrents taking into account filters
+        """
         all_sorted = sorted(
             self.__torrent_client.get_torrents(),
             key=lambda t: t.date_added,
@@ -265,6 +316,9 @@ class TorrentsListModel(QAbstractListModel):
         return [t for t in all_sorted if t.status == self.__filter_status]
 
     def _log_done_torrents(self, prev_torrents, new_torrents):
+        """
+        Log when torrent(s) has finished downloading
+        """
         try:
             for torrent in new_torrents:
                 if torrent.progress == 100 and find_by(lambda t: t.name == torrent.name, prev_torrents).progress != 100:

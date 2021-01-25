@@ -7,10 +7,12 @@ from ui.Footer import Footer
 from ui.PeerLimitDialog import PeerLimitDialog
 
 from ui.utils import show_error
-
 from logs.Logs import Logs
 
-
+"""
+A central place for managing all the
+controllers and glueing them together.
+"""
 class ContextManager():
     def __init__(self, torrent_client):
         super().__init__()
@@ -45,19 +47,25 @@ class ContextManager():
             torrent = self.__torrent_client.add_torrent(
                 file_url, download_dir=download_dir)
             self.__torrents_list_model.add_item(torrent)
-            self.__logs.log_torrent_added(torrent)
+            self.__logs.add_log(torrent, 'Torrent added')
         except FileNotFoundError:
             show_error('Torrent file is not found. Please try again')
         except Exception as err:
             show_error(str(err))
 
     def set_window(self, window):
+        """
+        Propagate window object to individual controllers
+        """
         self.__torrent_details_dialog.window = window
         self.__logs_dialog.window = window
         self.__footer.window = window
         self.__peer_limit_dialog.window = window
 
     def clean_up(self):
+        """
+        Clear all resources/timers
+        """
         self.__torrents_list_model.clean_up()
         self.__footer.clean_up()
         self.__logs.save_logs()

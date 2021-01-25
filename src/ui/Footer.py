@@ -2,6 +2,11 @@ from PyQt5.QtCore import QObject, pyqtSlot, pyqtSignal
 from utils.threading import set_interval
 from utils.formatters import format_file_size
 
+"""
+A controller for the application footer, which
+is responsible for periodically updating
+different kinds of stats shown.
+"""
 class Footer(QObject):
     REFETCH_SIGNAL = pyqtSignal()
 
@@ -16,10 +21,17 @@ class Footer(QObject):
         self.__stop_interval = set_interval(lambda: self.REFETCH_SIGNAL.emit(), 1)
     
     def clean_up(self):
+        """
+        Clear all resources/timers
+        """
         self.__stop_interval.set()
 
     @pyqtSlot()
     def on_refetch(self):
+        """
+        QtSlot.
+        Refresh the UI
+        """
         if self.window is None:
             return
         

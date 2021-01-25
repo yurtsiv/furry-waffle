@@ -1,6 +1,9 @@
 from datetime import datetime
 
 
+"""
+A single log representation
+"""
 class Log:
     def __init__(self, torrent_name, text, created_at=None):
         self.__torrent_name = torrent_name
@@ -8,11 +11,17 @@ class Log:
         self.__created_at = created_at or datetime.now()
 
     def matches_search(self, search_text):
+        """
+        Check if the log is fulfilling search criteria
+        """
         s = search_text.lower()
         return self.torrent_name.lower().find(s) != -1 or self.text.lower().find(s) != -1 or self.formatted_created_at.lower().find(s) != -1
 
     @classmethod
     def from_serializable(cls, dict):
+        """
+        Create a Log instance from serializable dictionary
+        """
         return cls(
             dict['torrent_name'],
             dict['text'],
@@ -25,6 +34,9 @@ class Log:
 
     @property
     def serializable(self):
+        """
+        Get serializable represntation of the log
+        """
         return {
             'torrent_name': self.torrent_name,
             'text': self.text,

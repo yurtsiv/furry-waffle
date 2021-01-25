@@ -1,6 +1,11 @@
 from PyQt5.QtCore import QModelIndex, QAbstractListModel, Qt, pyqtSlot
 from ui.utils import confirm_action
 
+"""
+A controller for logs list, which is responsible for
+providing the data for the view and handling user
+interactions like searching or clearing logs.
+"""
 class LogsListModel(QAbstractListModel):
     TORRENT_NAME_ROLE = Qt.UserRole + 1
     TEXT_ROLE = Qt.UserRole + 2
@@ -19,11 +24,17 @@ class LogsListModel(QAbstractListModel):
         self.__logs = []
 
     def refresh(self):
+        """
+        Refresh the whole list of logs
+        """
         self.beginResetModel()
         self.__logs = self.__logs_obj.all_logs
         self.endResetModel()
 
     def data(self, index, role=None):
+        """
+        Provide data for the UI
+        """
         row = index.row()
         log = self.__logs[row]
 
@@ -39,19 +50,35 @@ class LogsListModel(QAbstractListModel):
         return None
 
     def rowCount(self, parent=QModelIndex()):
+        """
+        Override.
+        Get number of logs in the list
+        """
         return len(self.__logs)
 
     def roleNames(self):
+        """
+        Override.
+        Get variables which can be used in QML
+        """
         return self.ROLES
-    
+
     @pyqtSlot(str)
     def on_search_change(self, search_text):
+        """
+        QtSlot.
+        Apply search
+        """
         self.beginResetModel()
         self.__logs = self.__logs_obj.get_by_search(search_text)
         self.endResetModel()
 
     @pyqtSlot()
     def on_clear_all(self):
+        """
+        QtSlot.
+        Clear all logs
+        """
         if confirm_action('Do you really want to delete all logs?', 'Clear logs'):
             self.__logs_obj.clear_all()
             self.refresh()

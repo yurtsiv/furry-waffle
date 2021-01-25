@@ -2,6 +2,10 @@ from PyQt5.QtCore import QObject, pyqtSlot
 
 from ui.utils import show_error
 
+"""
+A controller for peer limit dialog, which is responsible
+for getting a limit from the user and applying it. 
+"""
 class PeerLimitDialog(QObject):
     def __init__(self, torrent_client):
         super().__init__()
@@ -15,6 +19,9 @@ class PeerLimitDialog(QObject):
         self.__torrent = None
 
     def open(self, torrent_id):
+        """
+        Show peer limit dialog
+        """
         if self.window is None:
             return
 
@@ -36,12 +43,20 @@ class PeerLimitDialog(QObject):
     
     @pyqtSlot()
     def on_save(self):
+        """
+        QtSlot.
+        Apply new limit after user hits 'Save'
+        """
         self.__torrent.peer_limit = self.__limit
         self.__torrent.update()
         self.__dialog.close()
 
     @pyqtSlot(str)
     def on_input_change(self, value):
+        """
+        QtSlot.
+        Update internal state on input change
+        """
         if not value or int(value) <= 0:
             self.__limit = self.__torrent.peer_limit
         else:
