@@ -35,7 +35,7 @@ class TorrentsListModel(QAbstractListModel):
         STATS_COLOR_ROLE: 'stats_color'.encode('utf-8')
     }
 
-    REFETCH_SIGNAL = QtCore.pyQtSlot()
+    REFETCH_SIGNAL = QtCore.pyqtSignal()
 
     FILTER_STATUSES = [None, 'downloading', 'seeding', 'stopped']
 
