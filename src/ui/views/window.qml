@@ -40,9 +40,22 @@ ApplicationWindow {
           app_menu.on_logs_open()
         }
       }
+
+      Action {
+        text: "&Pause all"
+        onTriggered: {
+          app_menu.on_pause_all()
+        }
+      }
+
+      Action {
+        text: "&Resume all"
+        onTriggered: {
+          app_menu.on_resume_all()
+        }
+      }
     }
   }
-
 
   Lab.FileDialog {
     id: openFileDialog
@@ -58,11 +71,11 @@ ApplicationWindow {
     id: logsDialog
     width: 600
     height: 600
-
     objectName: "logsDialog"
     title: "Logs"
     modality: Qt.NonModal
     standardButtons: StandardButton.Close
+
     Component {
       id: logItem
 
@@ -299,12 +312,12 @@ ApplicationWindow {
           id: contextMenu
 
           Action {
-            text: "&Remove"
+            text: "Remove"
             onTriggered: torrents_list_model.on_remove(id)
           }
 
           Action {
-            text: "&Remove and clean data"
+            text: "Remove and clean data"
             onTriggered: torrents_list_model.on_remove_with_data(id)
           }
         }
@@ -339,6 +352,21 @@ ApplicationWindow {
       model: torrents_list_model
       delegate: torrentItem
       spacing: 10
+    }
+
+    Rectangle {
+      height: 1
+      Layout.fillWidth: true
+      color: "#ededed"
+    }
+
+    Text {
+      objectName: "footerText"
+      horizontalAlignment: Text.AlignRight
+      rightPadding: 10
+      bottomPadding: 5
+      Layout.fillWidth: true
+      text: "Uploaded: 55Gb     Downloaded: 33Gb"
     }
   }
 }

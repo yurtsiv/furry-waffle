@@ -3,8 +3,11 @@ from ui.TorrentsListModel import TorrentsListModel
 from ui.TorrentDetailsDialog import TorrentDetailsDialog
 from ui.LogsDialog import LogsDialog
 from ui.LogsListModel import LogsListModel
+from ui.Footer import Footer
 from ui.utils import show_error
+
 from logs.Logs import Logs
+
 
 class ContextManager():
     def __init__(self, torrent_client):
@@ -15,9 +18,13 @@ class ContextManager():
         self.__logs = Logs()
         self.__logs_dialog = LogsDialog()
         self.__logs_list_model = LogsListModel(logs=self.__logs)
-        self.__torrents_list_model = TorrentsListModel(torrent_client=torrent_client, logs=self.__logs)
-        self.__torrent_details_dialog = TorrentDetailsDialog(torrent_client=torrent_client, on_details_accepted=self.on_details_accepted)
-        self.__app_menu = AppMenu(on_file_selected=self.on_file_selected, on_logs_open=self.on_logs_open)
+        self.__torrents_list_model = TorrentsListModel(
+            torrent_client=torrent_client, logs=self.__logs)
+        self.__torrent_details_dialog = TorrentDetailsDialog(
+            torrent_client=torrent_client, on_details_accepted=self.on_details_accepted)
+        self.__app_menu = AppMenu(
+            on_file_selected=self.on_file_selected, on_logs_open=self.on_logs_open, torrent_client=torrent_client)
+        self.__footer = Footer(torrent_client=torrent_client)
 
     def on_file_selected(self, file_url):
         self.__torrent_details_dialog.open(file_url)
@@ -32,7 +39,8 @@ class ContextManager():
 
     def on_details_accepted(self, file_url, download_dir):
         try:
-            torrent = self.__torrent_client.add_torrent(file_url, download_dir=download_dir)
+            torrent = self.__torrent_client.add_torrent(
+                file_url, download_dir=download_dir)
             self.__torrents_list_model.add_item(torrent)
             self.__logs.log_torrent_added(torrent)
         except FileNotFoundError:
@@ -43,9 +51,12 @@ class ContextManager():
     def set_window(self, window):
         self.__torrent_details_dialog.window = window
         self.__logs_dialog.window = window
+        self.__speed_chart_dialog.window = window
+        self.__footer.window = window
 
     def clean_up(self):
         self.__torrents_list_model.clean_up()
+        self.__footer.clean_up()
         self.__logs.save_logs()
 
     @property

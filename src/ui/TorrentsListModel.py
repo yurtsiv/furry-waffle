@@ -39,14 +39,15 @@ class TorrentsListModel(QAbstractListModel):
         self.__logs = logs
         self.__torrent_client = torrent_client
         self.__filter_status = None
-        self.torrents = self._fetch_torrents()
+
+        self.__torrents = self._fetch_torrents()
 
         self.REFETCH_SIGNAL.connect(self.on_refetch)
         self.__stop_interval = set_interval(lambda: self.REFETCH_SIGNAL.emit(), 1)
 
     def data(self, index, role=None):
         row = index.row()
-        torrent = self.torrents[row]
+        torrent = self.__torrents[row]
 
         if role == self.ID_ROLE:
             return torrent.id
@@ -152,18 +153,18 @@ class TorrentsListModel(QAbstractListModel):
         return None
 
     def rowCount(self, parent=QModelIndex()):
-        return len(self.torrents)
+        return len(self.__torrents)
 
     def roleNames(self):
         return self.ROLES
 
     def add_item(self, torrent):
-        if next((t for t in self.torrents if t.id == torrent.id), None):
+        if next((t for t in self.__torrents if t.id == torrent.id), None):
             return
 
         row = 0
         self.beginInsertRows(QtCore.QModelIndex(), row, row)
-        self.torrents.insert(0, torrent)
+        self.__torrents.insert(0, torrent)
         self.endInsertRows()
 
     def clean_up(self):
@@ -173,11 +174,11 @@ class TorrentsListModel(QAbstractListModel):
     def on_refetch(self):
         new_torrents = self._fetch_torrents()
         new_torrents_len = len(new_torrents)
-        curr_torrents_len = len(self.torrents)
+        curr_torrents_len = len(self.__torrents)
 
         if new_torrents_len == curr_torrents_len:
-            self._log_done_torrents(self.torrents, new_torrents)
-            self.torrents = new_torrents
+            self._log_done_torrents(self.__torrents, new_torrents)
+            self.__torrents = new_torrents
 
             begin = self.createIndex(0, 0)
             end = self.createIndex(new_torrents_len, 0)
@@ -187,15 +188,15 @@ class TorrentsListModel(QAbstractListModel):
     def on_filter(self, filter_idx):
         self.__filter_status = self.FILTER_STATUSES[filter_idx]
         self.beginResetModel()
-        self.torrents = self._fetch_torrents()
+        self.__torrents = self._fetch_torrents()
         self.endResetModel()
 
     @pyqtSlot(str)
     def on_control_btn_click(self, torrent_id):
         try:
-            torrent_idx = list(map(lambda t: str(t.id), self.torrents)).index(torrent_id)
+            torrent_idx = list(map(lambda t: str(t.id), self.__torrents)).index(torrent_id)
 
-            torrent = self.torrents[torrent_idx]
+            torrent = self.__torrents[torrent_idx]
             idx = self.createIndex(torrent_idx, 0)
             status = torrent.status
 
@@ -218,8 +219,8 @@ class TorrentsListModel(QAbstractListModel):
 
     def _remove_torrent(self, torrent_id, delete_data = False):
         try:
-            torrent_idx = list(map(lambda t: str(t.id), self.torrents)).index(torrent_id)
-            torrent = self.torrents[torrent_idx]
+            torrent_idx = list(map(lambda t: str(t.id), self.__torrents)).index(torrent_id)
+            torrent = self.__torrents[torrent_idx]
 
             confirm_msg = 'Do you really want to remove "' + torrent.name + '"'
             if delete_data:
@@ -241,7 +242,7 @@ class TorrentsListModel(QAbstractListModel):
             )
 
             self.beginRemoveRows(QModelIndex(), torrent_idx, torrent_idx)
-            del self.torrents[torrent_idx]
+            del self.__torrents[torrent_idx]
             self.endRemoveRows()
         except Exception as e:
             show_error(str(e))
