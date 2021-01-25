@@ -75,18 +75,29 @@ ApplicationWindow {
     title: "Peer limit"
     standardButtons: StandardButton.Close | StandardButton.Save
 
+    onAccepted: {
+      peer_limit_dialog.on_save()
+    }
+
     Rectangle {
       width: parent.width
-      height: 20
+      height: 25
       border.width: 1
       border.color: '#ededed'
 
       TextInput {
+        id: peerLimitInput
+        objectName: "peerLimitInput"
+
         width: parent.width
         text: "1234"
-        objectName: "peerLimitInput"
         inputMethodHints: Qt.ImhDigitsOnly
         validator: IntValidator {bottom: 1; top: 1000000}
+        font.pixelSize: 15
+
+        onTextChanged: {
+          peer_limit_dialog.on_input_change(peerLimitInput.text)
+        }
       }
     }
   }

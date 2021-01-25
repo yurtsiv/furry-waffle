@@ -220,7 +220,7 @@ class TorrentsListModel(QAbstractListModel):
 
     @pyqtSlot(str)
     def on_peer_limit(self, torrent_id):
-        self.__on_peer_limit(torrent_id)
+        self.__on_peer_limit(int(torrent_id))
 
     def _remove_torrent(self, torrent_id, delete_data = False):
         try:

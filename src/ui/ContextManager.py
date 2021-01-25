@@ -20,7 +20,7 @@ class ContextManager():
         self.__logs = Logs()
         self.__logs_dialog = LogsDialog()
         self.__logs_list_model = LogsListModel(logs=self.__logs)
-        self.__peer_limit_dialog = PeerLimitDialog()
+        self.__peer_limit_dialog = PeerLimitDialog(torrent_client=torrent_client)
         self.__torrents_list_model = TorrentsListModel(
             torrent_client=torrent_client, logs=self.__logs, on_peer_limit=self.__peer_limit_dialog.open)
         self.__torrent_details_dialog = TorrentDetailsDialog(
@@ -77,3 +77,7 @@ class ContextManager():
     @property
     def logs_list_model(self):
         return self.__logs_list_model
+    
+    @property
+    def peer_limit_dialog(self):
+        return self.__peer_limit_dialog
