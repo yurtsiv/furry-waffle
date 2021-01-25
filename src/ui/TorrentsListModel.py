@@ -33,12 +33,13 @@ class TorrentsListModel(QAbstractListModel):
 
     FILTER_STATUSES = [None, 'downloading', 'seeding', 'stopped']
 
-    def __init__(self, torrent_client, logs):
+    def __init__(self, torrent_client, logs, on_peer_limit):
         QAbstractListModel.__init__(self)
 
         self.__logs = logs
         self.__torrent_client = torrent_client
         self.__filter_status = None
+        self.__on_peer_limit = on_peer_limit
 
         self.__torrents = self._fetch_torrents()
 
@@ -216,6 +217,10 @@ class TorrentsListModel(QAbstractListModel):
     @pyqtSlot(str)
     def on_remove_with_data(self, torrent_id):
         self._remove_torrent(torrent_id, True)
+
+    @pyqtSlot(str)
+    def on_peer_limit(self, torrent_id):
+        self.__on_peer_limit(torrent_id)
 
     def _remove_torrent(self, torrent_id, delete_data = False):
         try:

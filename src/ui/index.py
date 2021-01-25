@@ -30,7 +30,7 @@ def run(torrent_client):
     window = engine.rootObjects()[0]
     ctx_manager.set_window(window)
 
-    app.exec_()
+    ret = app.exec_()
 
     ctx_manager.clean_up()
-    sys.exit(0)
+    sys.exit(ret)

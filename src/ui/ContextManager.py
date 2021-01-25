@@ -4,6 +4,8 @@ from ui.TorrentDetailsDialog import TorrentDetailsDialog
 from ui.LogsDialog import LogsDialog
 from ui.LogsListModel import LogsListModel
 from ui.Footer import Footer
+from ui.PeerLimitDialog import PeerLimitDialog
+
 from ui.utils import show_error
 
 from logs.Logs import Logs
@@ -18,8 +20,9 @@ class ContextManager():
         self.__logs = Logs()
         self.__logs_dialog = LogsDialog()
         self.__logs_list_model = LogsListModel(logs=self.__logs)
+        self.__peer_limit_dialog = PeerLimitDialog()
         self.__torrents_list_model = TorrentsListModel(
-            torrent_client=torrent_client, logs=self.__logs)
+            torrent_client=torrent_client, logs=self.__logs, on_peer_limit=self.__peer_limit_dialog.open)
         self.__torrent_details_dialog = TorrentDetailsDialog(
             torrent_client=torrent_client, on_details_accepted=self.on_details_accepted)
         self.__app_menu = AppMenu(
@@ -51,8 +54,8 @@ class ContextManager():
     def set_window(self, window):
         self.__torrent_details_dialog.window = window
         self.__logs_dialog.window = window
-        self.__speed_chart_dialog.window = window
         self.__footer.window = window
+        self.__peer_limit_dialog.window = window
 
     def clean_up(self):
         self.__torrents_list_model.clean_up()

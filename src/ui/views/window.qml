@@ -68,6 +68,30 @@ ApplicationWindow {
   }
 
   Dialog {
+    width: 180
+    height: 100
+
+    objectName: "peerLimitDialog"
+    title: "Peer limit"
+    standardButtons: StandardButton.Close | StandardButton.Save
+
+    Rectangle {
+      width: parent.width
+      height: 20
+      border.width: 1
+      border.color: '#ededed'
+
+      TextInput {
+        width: parent.width
+        text: "1234"
+        objectName: "peerLimitInput"
+        inputMethodHints: Qt.ImhDigitsOnly
+        validator: IntValidator {bottom: 1; top: 1000000}
+      }
+    }
+  }
+
+  Dialog {
     id: logsDialog
     width: 600
     height: 600
@@ -310,6 +334,11 @@ ApplicationWindow {
   
         Menu {
           id: contextMenu
+
+          Action {
+            text: "Peer limit"
+            onTriggered: torrents_list_model.on_peer_limit(id)
+          }
 
           Action {
             text: "Remove"
