@@ -1,5 +1,5 @@
-from PyQt5.QtCore import QModelIndex, QAbstractListModel, Qt, pyqtSlot
-from ui.utils import confirm_action
+from PyQt5.QtCore import QModelIndex, QAbstractListModel, Qt, pyqtSlot, QObject
+from ui.utils import confirm_action, show_info
 
 """
 A controller for logs list, which is responsible for
@@ -19,6 +19,8 @@ class LogsListModel(QAbstractListModel):
 
     def __init__(self, logs):
         QAbstractListModel.__init__(self)
+
+        self.window = None
 
         self.__logs_obj = logs
         self.__logs = []
@@ -62,7 +64,7 @@ class LogsListModel(QAbstractListModel):
         Get variables which can be used in QML
         """
         return self.ROLES
-
+    
     @pyqtSlot(str)
     def on_search_change(self, search_text):
         """
@@ -79,6 +81,29 @@ class LogsListModel(QAbstractListModel):
         QtSlot.
         Clear all logs
         """
+
+        if self.__logs_obj.all_logs == []:
+            return
+
         if confirm_action('Do you really want to delete all logs?', 'Clear logs'):
             self.__logs_obj.clear_all()
             self.refresh()
+
+    @pyqtSlot(str)
+    def on_clear_filtered(self, search_text):
+        """
+        QtSlot.
+        Clear only those logs which are currently visible
+        """
+        if self.__logs == []:
+            return
+
+        if confirm_action('Do you really want to delete the logs you see in the list?', 'Clear logs'):
+            self.__logs_obj.clear_by_search(search_text)
+            self._clear_filter_field()
+            self.__logs = self.__logs_obj.all_logs
+            self.refresh()
+ 
+    def _clear_filter_field(self):
+        field = self.window.findChild(QObject, 'logSearchField')
+        field.setProperty('text', '')

@@ -8,6 +8,8 @@ from logs.Log import Log
 """
 A central place for reading/adding/removing logs.
 """
+
+
 class Logs:
     FILE_PATH = '.logs.json'
 
@@ -21,9 +23,9 @@ class Logs:
         self.__existing_logs = None
 
     @property
-    def all_logs(self):
+    def _all_logs(self):
         """
-        Get all logs (saved and not saved)
+        Get all logs (saved and not saved) as a set
         """
         self._ensure_file()
 
@@ -34,13 +36,18 @@ class Logs:
                     json.load(f)
                 ))
 
-            return list(
-                sorted(
-                    self.__pending_logs | self.__existing_logs,
-                    key=attrgetter('created_at'),
-                    reverse=True
-                )
+            return sorted(
+                self.__pending_logs | self.__existing_logs,
+                key=attrgetter('created_at'),
+                reverse=True
             )
+
+    @property
+    def all_logs(self):
+        """
+        Get all logs (saved and not saved)
+        """
+        return list(self._all_logs)
 
     def get_by_search(self, search_text):
         """
@@ -53,13 +60,23 @@ class Logs:
         Add a new pending log (not persisted, call `save_logs` to save all pending logs)
         """
         self.__pending_logs.add(Log(torrent.name, text))
-    
+
     def clear_all(self):
         """
         Clear all logs (not persisted, call `save_logs` to apply the change)
         """
         self.__pending_logs = set()
         self.__existing_logs = set()
+
+    def clear_by_search(self, search_text):
+        """
+        Clear only those logs which match search criteria
+        (not persisted, call `save_logs` to apply the change)
+        """
+        logs_to_clear = set([l for l in self._all_logs if l.matches_search(search_text)])
+
+        self.__pending_logs -= logs_to_clear
+        self.__existing_logs -= logs_to_clear
 
     def save_logs(self):
         """

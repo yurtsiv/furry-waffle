@@ -61,6 +61,7 @@ class ContextManager():
         self.__logs_dialog.window = window
         self.__footer.window = window
         self.__peer_limit_dialog.window = window
+        self.__logs_list_model.window = window
 
     def clean_up(self):
         """

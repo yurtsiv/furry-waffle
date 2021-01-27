@@ -146,20 +146,31 @@ ApplicationWindow {
       anchors.fill: parent
       clip: true
 
-
       RowLayout {
         TextField {
           id: logSearchField
+          objectName: "logSearchField"
           selectByMouse: true
           placeholderText: 'Search...'
 
           onTextChanged: {
-            logs_list_model.on_search_change(logSearchField.text)
+            const text = logSearchField.text;
+            clearFilteredLogsBtn.enabled = !!text
+            logs_list_model.on_search_change(text);
           }
         }
 
         Rectangle {
           Layout.fillWidth: true
+        }
+
+        Button {
+          id: clearFilteredLogsBtn
+          text: "Clear filtered"
+          enabled: false
+          onClicked: {
+            logs_list_model.on_clear_filtered(logSearchField.text)
+          }
         }
 
         Button {
@@ -269,78 +280,17 @@ ApplicationWindow {
   Component {
     id: torrentItem
 
-    ColumnLayout {
+    Rectangle {
       width: parent.width
-
-      Rectangle {
-        height: 1
-        Layout.fillWidth: true
-        color: "#ededed"
-      }
-
-      RowLayout {
-        Layout.fillWidth: true
-
-        ColumnLayout {
-          Text {
-            text: name
-            font.bold: true
-            font.pixelSize: 16
-          }
-
-          Text {
-            text: stats_formatted
-            color: stats_color
-          }
-
-          Text {
-            text: progress_formatted
-          }
-        }
-
-        Rectangle {
-          Layout.fillWidth: true
-        }
-
-        Button {
-          text: control_btn_text
-          visible: control_btn_visible
-          onClicked: {
-            torrents_list_model.on_control_btn_click(id)
-          }
-        }  
-      }
-
-      Controls1.ProgressBar {
-        value: progress_percent
-
-        maximumValue: 100
-        implicitWidth: parent.width
-        implicitHeight: 20
-
-        style: ProgressBarStyle {
-          background: Rectangle {
-            radius: 2
-            color: "lightgray"
-            border.color: "gray"
-            border.width: 1
-            implicitWidth: parent.width
-            implicitHeight: parent.height
-          }
-
-          progress: Rectangle {
-            color: progress_bar_color
-          }
-        }
-      }
+      height: 100
 
       MouseArea {
         anchors.fill: parent
 
         acceptedButtons: Qt.RightButton
         onClicked: {
-            if (mouse.button === Qt.RightButton)
-                contextMenu.popup()
+          if (mouse.button === Qt.RightButton)
+              contextMenu.popup()
         }
   
         Menu {
@@ -359,6 +309,82 @@ ApplicationWindow {
           Action {
             text: "Remove and clean data"
             onTriggered: torrents_list_model.on_remove_with_data(id)
+          }
+        }
+      }
+
+      ColumnLayout {
+        width: parent.width
+
+        Rectangle {
+          height: 1
+          Layout.fillWidth: true
+          color: "#ededed"
+        }
+
+        RowLayout {
+          Layout.fillWidth: true
+
+          // TODO: fix this hack
+          Rectangle {
+            width: 3
+          }
+
+          ColumnLayout {
+            Text {
+              text: name
+              font.bold: true
+              font.pixelSize: 16
+            }
+
+            Text {
+              text: stats_formatted
+              color: stats_color
+            }
+
+            Text {
+              text: progress_formatted
+            }
+          }
+
+          Rectangle {
+            Layout.fillWidth: true
+          }
+
+          Button {
+            text: control_btn_text
+            visible: control_btn_visible
+            onClicked: {
+              torrents_list_model.on_control_btn_click(id)
+            }
+          }  
+
+          // TODO: fix this hack
+          Rectangle {
+            width: 20
+          }
+        }
+
+        Controls1.ProgressBar {
+          value: progress_percent
+
+          maximumValue: 100
+          implicitWidth: parent.width
+          implicitHeight: 20
+
+          style: ProgressBarStyle {
+            background: Rectangle {
+              radius: 2
+              color: "lightgray"
+              border.color: "gray"
+              border.width: 1
+              implicitWidth: parent.width
+              implicitHeight: parent.height
+            }
+
+            progress: Rectangle {
+              color: progress_bar_color
+            }
           }
         }
       }
