@@ -122,7 +122,7 @@ ApplicationWindow {
       id: logItem
 
       ColumnLayout {
-        width: parent.width
+        width: logsListView.width
         clip: true
 
         Rectangle {
@@ -133,13 +133,13 @@ ApplicationWindow {
 
         ColumnLayout {
           Text {
-            text: log_text
+            text: title
             font.bold: true
             font.pixelSize: 16
           }
 
           Text {
-            text: torrent_name
+            text: description
           }
 
           Text {
@@ -189,6 +189,8 @@ ApplicationWindow {
       }
 
       ListView {
+        id: logsListView
+  
         Layout.fillWidth: true
         Layout.fillHeight: true
 
@@ -330,7 +332,7 @@ ApplicationWindow {
     id: torrentItem
 
     Rectangle {
-      width: parent.width
+      width: torrentsListView.width
       height: 100
 
       MouseArea {
@@ -461,6 +463,7 @@ ApplicationWindow {
     }
 
     ListView {
+      id: torrentsListView
       Layout.fillWidth: true
       Layout.fillHeight: true
       clip: true

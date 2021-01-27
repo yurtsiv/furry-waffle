@@ -60,7 +60,8 @@ class ContextManager():
             _ = self.__logs.all_logs
             self.__logs_list_model.refresh()
             self.__logs_dialog.open()
-        except:
+        except Exception as e:
+            print(e)
             show_error('Failed to open logs')
 
     def on_details_accepted(self, file_url, download_dir):

@@ -322,6 +322,6 @@ class TorrentsListModel(QAbstractListModel):
         try:
             for torrent in new_torrents:
                 if torrent.progress == 100 and find_by(lambda t: t.name == torrent.name, prev_torrents).progress != 100:
-                    self.__logs.add_log(torrent, 'Download finished')
+                    self.__logs.add_log(torrent, 'Download finished', include_stats=True)
         except:
             pass

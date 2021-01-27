@@ -3,6 +3,7 @@ import json
 from operator import attrgetter
 
 from utils.lists import list_map
+from utils.formatters import format_file_size
 from logs.Log import Log
 
 """
@@ -55,11 +56,20 @@ class Logs:
         """
         return [l for l in self.all_logs if l.matches_search(search_text)]
 
-    def add_log(self, torrent, text):
+    def add_log(self, torrent, title, include_stats=False):
         """
-        Add a new pending log (not persisted, call `save_logs` to save all pending logs)
+        Add a new pending log
+        (not persisted, call `save_logs` to save all pending logs)
         """
-        self.__pending_logs.add(Log(torrent.name, text))
+
+        description = torrent.name
+
+        if include_stats:
+            size = format_file_size(torrent._fields['downloadedEver'].value)
+            dir = torrent._fields['downloadDir'].value
+            description += '\nSize: ' + size + ' \nDirectory: ' + dir
+
+        self.__pending_logs.add(Log(title, description))
 
     def clear_all(self):
         """
