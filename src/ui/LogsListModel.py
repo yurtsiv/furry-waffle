@@ -20,6 +20,7 @@ class LogsListModel(QAbstractListModel):
     def __init__(self, logs):
         QAbstractListModel.__init__(self)
 
+        # late init
         self.window = None
 
         self.__logs_obj = logs

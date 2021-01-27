@@ -13,6 +13,7 @@ class Footer(QObject):
     def __init__(self, torrent_client):
         super().__init__()
 
+        # late init
         self.window = None
 
         self.__footer_text_view = None

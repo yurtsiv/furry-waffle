@@ -35,9 +35,9 @@ ApplicationWindow {
       title: "&Edit"
 
       Action {
-        text: "&Logs"
+        text: "&Default download directory"
         onTriggered: {
-          app_menu.on_logs_open()
+          app_menu.on_default_download_dir()
         }
       }
 
@@ -52,6 +52,13 @@ ApplicationWindow {
         text: "&Resume all"
         onTriggered: {
           app_menu.on_resume_all()
+        }
+      }
+
+      Action {
+        text: "&Logs"
+        onTriggered: {
+          app_menu.on_logs_open()
         }
       }
     }
@@ -190,6 +197,48 @@ ApplicationWindow {
         delegate: logItem
         spacing: 10
       }
+    }
+  }
+
+  Dialog {
+    width: 500
+    height: 120
+    objectName: "defaultDownloadDirDialog"
+    title: "Default download directory"
+    standardButtons: StandardButton.Save | StandardButton.Cancel
+
+    onAccepted: {
+      default_download_dir_dialog.on_accept()
+    }
+
+    FileDialog {
+      id: changeDefaultDownloadDirDialog
+      title: "Download directory"
+      selectFolder: true
+
+      onAccepted: {
+        default_download_dir_dialog.on_change_dir(changeDefaultDownloadDirDialog.folder)
+      }
+    }
+
+    RowLayout {
+      width: parent.width
+
+      TextField {
+        id: defaultDownloadDir
+        objectName: "defaultDownloadDir"
+        text: "filepath"
+        readOnly: true
+        selectByMouse: true
+        Layout.fillWidth: true
+      }
+
+      Button {
+        text: "Change"
+        onClicked: {
+          changeDefaultDownloadDirDialog.open()
+        }
+      }  
     }
   }
 

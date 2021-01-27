@@ -10,6 +10,7 @@ class LogsDialog(QObject):
     def __init__(self):
         super().__init__()
 
+        # late init
         self.window = None
 
     def open(self):

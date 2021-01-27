@@ -19,11 +19,9 @@ def run(torrent_client):
 
     ctx_manager = ContextManager(torrent_client)
 
-    context.setContextProperty("app_menu", ctx_manager.app_menu)
-    context.setContextProperty("torrents_list_model", ctx_manager.torrents_list_model)
-    context.setContextProperty("torrent_details_dialog", ctx_manager.torrent_details_dialog)
-    context.setContextProperty("logs_list_model", ctx_manager.logs_list_model)
-    context.setContextProperty("peer_limit_dialog", ctx_manager.peer_limit_dialog)
+    ctx_props = ctx_manager.context_props
+    for prop_name in ctx_props:
+        context.setContextProperty(prop_name, ctx_props[prop_name])
 
     qml_file = os.path.join(os.path.dirname(__file__), "views/window.qml")
     engine.load(QUrl.fromLocalFile(os.path.abspath(qml_file)))
