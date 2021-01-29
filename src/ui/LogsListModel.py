@@ -8,14 +8,14 @@ class LogsListModel(QAbstractListModel):
     interactions like searching or clearing logs.
     """
 
-    TORRENT_NAME_ROLE = Qt.UserRole + 1
-    TEXT_ROLE = Qt.UserRole + 2
-    CREATED_AT = Qt.UserRole + 3
+    DESCRIPTION_ROLE = Qt.UserRole + 1
+    TITLE_ROLE = Qt.UserRole + 2
+    CREATED_AT_ROLE = Qt.UserRole + 3
 
     ROLES = {
-        TORRENT_NAME_ROLE: 'torrent_name'.encode('utf-8'),
-        TEXT_ROLE: 'log_text'.encode('utf-8'),
-        CREATED_AT: 'created_at'.encode('utf-8')
+        TITLE_ROLE: 'title'.encode('utf-8'),
+        DESCRIPTION_ROLE: 'description'.encode('utf-8'),
+        CREATED_AT_ROLE: 'created_at'.encode('utf-8')
     }
 
     def __init__(self, logs):
@@ -42,13 +42,14 @@ class LogsListModel(QAbstractListModel):
         row = index.row()
         log = self.__logs[row]
 
-        if role == self.TORRENT_NAME_ROLE:
-            return log.torrent_name
+        if role == self.TITLE_ROLE:
+            return log.title
 
-        if role == self.TEXT_ROLE:
-            return log.text
+        if role == self.DESCRIPTION_ROLE:
+            return log.description
+
  
-        if role == self.CREATED_AT:
+        if role == self.CREATED_AT_ROLE:
             return log.formatted_created_at
 
         return None

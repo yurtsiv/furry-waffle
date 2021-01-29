@@ -133,13 +133,13 @@ ApplicationWindow {
 
         ColumnLayout {
           Text {
-            text: log_text
+            text: title
             font.bold: true
             font.pixelSize: 16
           }
 
           Text {
-            text: torrent_name
+            text: description
           }
 
           Text {
