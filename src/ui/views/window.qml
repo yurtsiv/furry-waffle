@@ -122,7 +122,7 @@ ApplicationWindow {
       id: logItem
 
       ColumnLayout {
-        width: parent.width
+        width: logsListView.width
         clip: true
 
         Rectangle {
@@ -189,6 +189,7 @@ ApplicationWindow {
       }
 
       ListView {
+        id: logsListView
         Layout.fillWidth: true
         Layout.fillHeight: true
 
@@ -330,7 +331,7 @@ ApplicationWindow {
     id: torrentItem
 
     Rectangle {
-      width: parent.width
+      width: torrentsListView.width
       height: 100
 
       MouseArea {
@@ -461,6 +462,7 @@ ApplicationWindow {
     }
 
     ListView {
+      id: torrentsListView
       Layout.fillWidth: true
       Layout.fillHeight: true
       clip: true

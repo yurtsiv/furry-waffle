@@ -13,6 +13,9 @@ def run(torrent_client):
     """
     app = QApplication(sys.argv)
 
+    app.setOrganizationName("example")
+    app.setOrganizationDomain("example.com")
+
     engine = QQmlApplicationEngine()
 
     context = engine.rootContext()
