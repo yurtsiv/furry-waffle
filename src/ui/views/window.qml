@@ -190,7 +190,6 @@ ApplicationWindow {
 
       ListView {
         id: logsListView
-  
         Layout.fillWidth: true
         Layout.fillHeight: true
 

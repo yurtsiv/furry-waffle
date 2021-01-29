@@ -1,10 +1,10 @@
 from datetime import datetime
 
 
-"""
-A single log representation
-"""
 class Log:
+    """
+    A single log representation
+    """
     def __init__(self, title, description, created_at=None):
         self.__description = description
         self.__title = title
@@ -23,8 +23,8 @@ class Log:
         Create a Log instance from serializable dictionary
         """
         return cls(
-            dict['description'],
             dict['title'],
+            dict['description'],
             datetime.fromtimestamp(dict['created_at'])
         )
 

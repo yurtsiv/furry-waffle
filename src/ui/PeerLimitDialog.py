@@ -2,11 +2,12 @@ from PyQt5.QtCore import QObject, pyqtSlot
 
 from ui.utils import show_error
 
-"""
-A controller for peer limit dialog, which is responsible
-for getting a limit from the user and applying it. 
-"""
 class PeerLimitDialog(QObject):
+    """
+    A controller for peer limit dialog, which is responsible
+    for getting a limit from the user and applying it. 
+    """
+
     def __init__(self, torrent_client):
         super().__init__()
 

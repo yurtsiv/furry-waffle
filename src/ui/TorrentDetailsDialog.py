@@ -1,11 +1,12 @@
 from PyQt5.QtCore import QObject, pyqtSlot
 from utils.files import url_to_path
 
-"""
-Torrent details dialog controller, which is responsible
-for getting torrent file path and download directory from the user.
-"""
 class TorrentDetailsDialog(QObject):
+    """
+    Torrent details dialog controller, which is responsible
+    for getting torrent file path and download directory from the user.
+    """
+
     def __init__(self, torrent_client, on_details_accepted):
         super().__init__()
 

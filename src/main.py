@@ -3,7 +3,9 @@ from transmission_rpc import Client
 
 if __name__ == '__main__':
     try:
+        print('Connecting to Transmission daemon')
         client = Client(host='localhost', port=9091, username='transmission', password='password')
+        print('Connected. Starting the UI')
         run(client)
     except Exception as e:
         print(e)

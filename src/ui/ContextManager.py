@@ -7,16 +7,18 @@ from ui.Footer import Footer
 from ui.PeerLimitDialog import PeerLimitDialog
 from ui.DefaultDownloadDirDialog import DefaultDownloadDirDialog
 
+from utils.files import open_torrent_file
 from ui.utils import show_error
 from logs.Logs import Logs
 
-"""
-A central place for managing all the
-controllers and glueing them together.
-"""
 
 
 class ContextManager():
+    """
+    A central place for managing all the
+    controllers and glueing them together.
+    """
+
     def __init__(self, torrent_client):
         super().__init__()
 
@@ -67,7 +69,7 @@ class ContextManager():
     def on_details_accepted(self, file_url, download_dir):
         try:
             torrent = self.__torrent_client.add_torrent(
-                file_url, download_dir=download_dir)
+                open_torrent_file(file_url), download_dir=download_dir)
             self.__torrents_list_model.add_item(torrent)
             self.__logs.add_log(torrent, 'Torrent added')
         except FileNotFoundError:

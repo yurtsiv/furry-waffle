@@ -6,12 +6,11 @@ from utils.lists import list_map
 from utils.formatters import format_file_size
 from logs.Log import Log
 
-"""
-A central place for reading/adding/removing logs.
-"""
-
-
 class Logs:
+    """
+    A central place for reading/adding/removing logs.
+    """
+
     FILE_PATH = '.logs.json'
 
     def __init__(self):
