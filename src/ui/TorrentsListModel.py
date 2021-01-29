@@ -6,13 +6,14 @@ from utils.lists import find_by
 from utils.threading import set_interval
 from utils.formatters import format_file_size
 
-"""
-A controller for torrents list, which fetches
-the list of torrents periodically and updates the UI
-on each iteration. It's also repsonsible for handling
-user interactions like pausing, resuming and removing individual torrents.
-"""
 class TorrentsListModel(QAbstractListModel):
+    """
+    A controller for torrents list, which fetches
+    the list of torrents periodically and updates the UI
+    on each iteration. It's also repsonsible for handling
+    user interactions like pausing, resuming and removing individual torrents.
+    """
+
     ID_ROLE = Qt.UserRole + 1
     NAME_ROLE = Qt.UserRole + 2
     PROGRESS_PERCENT_ROLE = Qt.UserRole + 3

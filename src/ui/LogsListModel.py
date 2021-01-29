@@ -1,12 +1,13 @@
 from PyQt5.QtCore import QModelIndex, QAbstractListModel, Qt, pyqtSlot, QObject
 from ui.utils import confirm_action, show_info
 
-"""
-A controller for logs list, which is responsible for
-providing the data for the view and handling user
-interactions like searching or clearing logs.
-"""
 class LogsListModel(QAbstractListModel):
+    """
+    A controller for logs list, which is responsible for
+    providing the data for the view and handling user
+    interactions like searching or clearing logs.
+    """
+
     TORRENT_NAME_ROLE = Qt.UserRole + 1
     TEXT_ROLE = Qt.UserRole + 2
     CREATED_AT = Qt.UserRole + 3

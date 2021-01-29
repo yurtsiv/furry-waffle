@@ -2,12 +2,13 @@ from PyQt5.QtCore import QObject, pyqtSlot, pyqtSignal
 from utils.threading import set_interval
 from utils.formatters import format_file_size
 
-"""
-A controller for the application footer, which
-is responsible for periodically updating
-different kinds of stats shown.
-"""
 class Footer(QObject):
+    """
+    A controller for the application footer, which
+    is responsible for periodically updating
+    different kinds of stats shown.
+    """
+
     REFETCH_SIGNAL = pyqtSignal()
 
     def __init__(self, torrent_client):

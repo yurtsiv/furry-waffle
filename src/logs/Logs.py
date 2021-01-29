@@ -5,12 +5,11 @@ from operator import attrgetter
 from utils.lists import list_map
 from logs.Log import Log
 
-"""
-A central place for reading/adding/removing logs.
-"""
-
-
 class Logs:
+    """
+    A central place for reading/adding/removing logs.
+    """
+
     FILE_PATH = '.logs.json'
 
     def __init__(self):

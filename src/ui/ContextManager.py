@@ -11,13 +11,14 @@ from utils.files import open_torrent_file
 from ui.utils import show_error
 from logs.Logs import Logs
 
-"""
-A central place for managing all the
-controllers and glueing them together.
-"""
 
 
 class ContextManager():
+    """
+    A central place for managing all the
+    controllers and glueing them together.
+    """
+
     def __init__(self, torrent_client):
         super().__init__()
 

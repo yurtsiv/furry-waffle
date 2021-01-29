@@ -1,10 +1,11 @@
 from datetime import datetime
 
 
-"""
-A single log representation
-"""
 class Log:
+    """
+    A single log representation
+    """
+
     def __init__(self, torrent_name, text, created_at=None):
         self.__torrent_name = torrent_name
         self.__text = text

@@ -1,11 +1,12 @@
 from PyQt5.QtCore import QObject, pyqtSlot
 
-"""
-A controller for the application menu, which
-is reponsible for handling all the available options
-(some handlers are delegated to ContextManager).
-"""
 class AppMenu(QObject):
+    """
+    A controller for the application menu, which
+    is reponsible for handling all the available options
+    (some handlers are delegated to ContextManager).
+    """
+
     def __init__(self, on_default_download_dir_open, on_file_selected, on_logs_open, torrent_client):
         super().__init__()
 

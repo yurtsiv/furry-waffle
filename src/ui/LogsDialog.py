@@ -2,11 +2,12 @@ from PyQt5.QtCore import QObject, pyqtSlot
 
 from ui.utils import show_error
 
-"""
-A controller for logs dialog, which
-currently is only responsible for opening the dialog.
-"""
 class LogsDialog(QObject):
+    """
+    A controller for logs dialog, which
+    currently is only responsible for opening the dialog.
+    """
+
     def __init__(self):
         super().__init__()
 

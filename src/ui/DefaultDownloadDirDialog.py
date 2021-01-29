@@ -1,11 +1,12 @@
 from PyQt5.QtCore import QObject, pyqtSlot
 from utils.files import url_to_path
 
-"""
-Default download directory dialog controller, which is responsible
-for setting the default download directory for each new torrent.
-"""
 class DefaultDownloadDirDialog(QObject):
+    """
+    Default download directory dialog controller, which is responsible
+    for setting the default download directory for each new torrent.
+    """
+
     def __init__(self, torrent_client):
         super().__init__()
 
